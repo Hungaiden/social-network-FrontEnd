@@ -1,23 +1,23 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Login from "@/components/auth/login"
-import Dashboard from "@/components/dashboard/dashboard"
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { isAuthenticated } from "@/services/authService";
 
 export default function Home() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [currentUser, setCurrentUser] = useState(null)
+  const router = useRouter();
 
-  if (!isLoggedIn) {
-    return (
-      <Login
-        onLogin={(user) => {
-          setCurrentUser(user)
-          setIsLoggedIn(true)
-        }}
-      />
-    )
-  }
+  useEffect(() => {
+    if (isAuthenticated()) {
+      router.replace("/dashboard/timeline");
+    } else {
+      router.replace("/login");
+    }
+  }, [router]);
 
-  return <Dashboard currentUser={currentUser} onLogout={() => setIsLoggedIn(false)} />
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+    </div>
+  );
 }
