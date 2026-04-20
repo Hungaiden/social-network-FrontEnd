@@ -7,7 +7,7 @@ const API_BASE_URL_PROD = 'https://fakebook-app-v1.onrender.com/api/v1';
 // Tạo instance Axios với cấu hình mặc định
 const http: AxiosInstance = axios.create({
   baseURL: API_BASE_URL_PROD,
-  timeout: 10000,
+  timeout: 180000, // 3 phút để chờ cold start
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
