@@ -1,4 +1,4 @@
-import apiClient from "@/lib/api";
+import http from './http';
 
 // Types
 export interface Friend {
@@ -46,7 +46,7 @@ export interface FriendRequestsResponse {
 export interface RespondFriendRequest {
   requestId: string;
   receiverId: string;
-  action: "ACCEPT" | "REJECT";
+  action: 'ACCEPT' | 'REJECT';
 }
 
 export interface FriendRequestResponse {
@@ -62,9 +62,7 @@ export const friendService = {
    * @param params Pageable parameters (page, size, sort)
    * @returns List of friends with pagination info
    */
-  getMyFriends: async (
-    params: PageableParams = {},
-  ): Promise<FriendsResponse> => {
+  getMyFriends: async (params: PageableParams = {}): Promise<FriendsResponse> => {
     try {
       const { page = 0, size = 20, sort } = params;
       const queryParams = new URLSearchParams({
@@ -73,15 +71,11 @@ export const friendService = {
         ...(sort && { sort }),
       });
 
-      const response = await apiClient.get<FriendsResponse>(
-        `/friends/myFriend?${queryParams}`,
-      );
+      const response = await http.get<FriendsResponse>(`/friends/myFriend?${queryParams}`);
       return response.data;
     } catch (error: any) {
-      console.error("Error fetching friends:", error);
-      throw new Error(
-        error.response?.data?.message || "Failed to fetch friends",
-      );
+      console.error('Error fetching friends:', error);
+      throw new Error(error.response?.data?.message || 'Failed to fetch friends');
     }
   },
 
@@ -91,15 +85,11 @@ export const friendService = {
    */
   getMyFriendRequests: async (): Promise<FriendRequestsResponse> => {
     try {
-      const response = await apiClient.get<FriendRequestsResponse>(
-        `/friend-request/myFriendRequest`,
-      );
+      const response = await http.get<FriendRequestsResponse>(`/friend-request/myFriendRequest`);
       return response.data;
     } catch (error: any) {
-      console.error("Error fetching friend requests:", error);
-      throw new Error(
-        error.response?.data?.message || "Failed to fetch friend requests",
-      );
+      console.error('Error fetching friend requests:', error);
+      throw new Error(error.response?.data?.message || 'Failed to fetch friend requests');
     }
   },
 
@@ -108,20 +98,13 @@ export const friendService = {
    * @param request Request data containing requestId, receiverId, and action
    * @returns Updated friend request
    */
-  respondFriendRequest: async (
-    request: RespondFriendRequest,
-  ): Promise<FriendRequestResponse> => {
+  respondFriendRequest: async (request: RespondFriendRequest): Promise<FriendRequestResponse> => {
     try {
-      const response = await apiClient.post<FriendRequestResponse>(
-        `/friend-request/response`,
-        request,
-      );
+      const response = await http.post<FriendRequestResponse>(`/friend-request/response`, request);
       return response.data;
     } catch (error: any) {
-      console.error("Error responding to friend request:", error);
-      throw new Error(
-        error.response?.data?.message || "Failed to respond to friend request",
-      );
+      console.error('Error responding to friend request:', error);
+      throw new Error(error.response?.data?.message || 'Failed to respond to friend request');
     }
   },
 };

@@ -1,4 +1,4 @@
-import apiClient from "@/lib/api";
+import http from './http';
 
 // Types
 export interface CreatePostRequest {
@@ -44,11 +44,11 @@ export const postService = {
    */
   createPost: async (data: CreatePostRequest): Promise<CreatePostResponse> => {
     try {
-      const response = await apiClient.post<CreatePostResponse>("/post", data);
+      const response = await http.post<CreatePostResponse>('/post', data);
       return response.data;
     } catch (error: any) {
-      console.error("Error creating post:", error);
-      throw new Error(error.response?.data?.message || "Failed to create post");
+      console.error('Error creating post:', error);
+      throw new Error(error.response?.data?.message || 'Failed to create post');
     }
   },
 
@@ -57,13 +57,11 @@ export const postService = {
    */
   getHomePosts: async (page = 0, size = 10): Promise<HomePostsResponse> => {
     try {
-      const response = await apiClient.get<HomePostsResponse>(
-        `/post/home?page=${page}&size=${size}`,
-      );
+      const response = await http.get<HomePostsResponse>(`/post/home?page=${page}&size=${size}`);
       return response.data;
     } catch (error: any) {
-      console.error("Error fetching home posts:", error);
-      throw new Error(error.response?.data?.message || "Failed to fetch posts");
+      console.error('Error fetching home posts:', error);
+      throw new Error(error.response?.data?.message || 'Failed to fetch posts');
     }
   },
 };

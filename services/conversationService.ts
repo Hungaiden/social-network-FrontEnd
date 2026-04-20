@@ -1,4 +1,4 @@
-import apiClient from "@/lib/api";
+import http from './http';
 
 // Types
 export interface CreateGroupChatRequest {
@@ -17,7 +17,7 @@ export interface CreateGroupChatResponse {
 export interface Conversation {
   id: string;
   name: string;
-  type: "direct" | "group";
+  type: 'direct' | 'group';
   members: Array<{
     id: string;
     name: string;
@@ -98,20 +98,13 @@ export const conversationService = {
    * @param data Group chat data with name and member IDs
    * @returns Created group chat information
    */
-  createGroupChat: async (
-    data: CreateGroupChatRequest,
-  ): Promise<CreateGroupChatResponse> => {
+  createGroupChat: async (data: CreateGroupChatRequest): Promise<CreateGroupChatResponse> => {
     try {
-      const response = await apiClient.post<CreateGroupChatResponse>(
-        "/conversation/group",
-        data,
-      );
+      const response = await http.post<CreateGroupChatResponse>('/conversation/group', data);
       return response.data;
     } catch (error: any) {
-      console.error("Error creating group chat:", error);
-      throw new Error(
-        error.response?.data?.message || "Failed to create group chat",
-      );
+      console.error('Error creating group chat:', error);
+      throw new Error(error.response?.data?.message || 'Failed to create group chat');
     }
   },
 
@@ -121,16 +114,13 @@ export const conversationService = {
    */
   getPrivateConversations: async (): Promise<PrivateConversationsResponse> => {
     try {
-      const response = await apiClient.get<PrivateConversationsResponse>(
-        "/conversation/by-user/private",
+      const response = await http.get<PrivateConversationsResponse>(
+        '/conversation/by-user/private',
       );
       return response.data;
     } catch (error: any) {
-      console.error("Error fetching private conversations:", error);
-      throw new Error(
-        error.response?.data?.message ||
-          "Failed to fetch private conversations",
-      );
+      console.error('Error fetching private conversations:', error);
+      throw new Error(error.response?.data?.message || 'Failed to fetch private conversations');
     }
   },
 
@@ -140,13 +130,11 @@ export const conversationService = {
    */
   getConversations: async (): Promise<Conversation[]> => {
     try {
-      const response = await apiClient.get<Conversation[]>("/conversation");
+      const response = await http.get<Conversation[]>('/conversation');
       return response.data;
     } catch (error: any) {
-      console.error("Error fetching conversations:", error);
-      throw new Error(
-        error.response?.data?.message || "Failed to fetch conversations",
-      );
+      console.error('Error fetching conversations:', error);
+      throw new Error(error.response?.data?.message || 'Failed to fetch conversations');
     }
   },
 
@@ -157,13 +145,11 @@ export const conversationService = {
    */
   getConversationById: async (id: string): Promise<Conversation> => {
     try {
-      const response = await apiClient.get<Conversation>(`/conversation/${id}`);
+      const response = await http.get<Conversation>(`/conversation/${id}`);
       return response.data;
     } catch (error: any) {
-      console.error("Error fetching conversation:", error);
-      throw new Error(
-        error.response?.data?.message || "Failed to fetch conversation",
-      );
+      console.error('Error fetching conversation:', error);
+      throw new Error(error.response?.data?.message || 'Failed to fetch conversation');
     }
   },
 
@@ -173,12 +159,10 @@ export const conversationService = {
    */
   deleteConversation: async (id: string): Promise<void> => {
     try {
-      await apiClient.delete(`/conversation/${id}`);
+      await http.delete(`/conversation/${id}`);
     } catch (error: any) {
-      console.error("Error deleting conversation:", error);
-      throw new Error(
-        error.response?.data?.message || "Failed to delete conversation",
-      );
+      console.error('Error deleting conversation:', error);
+      throw new Error(error.response?.data?.message || 'Failed to delete conversation');
     }
   },
 
@@ -187,19 +171,13 @@ export const conversationService = {
    * @param conversationId Conversation ID
    * @returns List of messages with pagination
    */
-  getMessagesByConversation: async (
-    conversationId: string,
-  ): Promise<MessagesResponse> => {
+  getMessagesByConversation: async (conversationId: string): Promise<MessagesResponse> => {
     try {
-      const response = await apiClient.get<MessagesResponse>(
-        `/message/${conversationId}`,
-      );
+      const response = await http.get<MessagesResponse>(`/message/${conversationId}`);
       return response.data;
     } catch (error: any) {
-      console.error("Error fetching messages:", error);
-      throw new Error(
-        error.response?.data?.message || "Failed to fetch messages",
-      );
+      console.error('Error fetching messages:', error);
+      throw new Error(error.response?.data?.message || 'Failed to fetch messages');
     }
   },
 
@@ -208,23 +186,16 @@ export const conversationService = {
    * @param data Message data with conversationId, senderId, and content
    * @returns Sent message information
    */
-  sendMessage: async (
-    data: SendMessageRequest,
-  ): Promise<SendMessageResponse> => {
+  sendMessage: async (data: SendMessageRequest): Promise<SendMessageResponse> => {
     try {
-      console.log("Sending message with data:", data);
-      const response = await apiClient.post<SendMessageResponse>(
-        "/message/send",
-        data,
-      );
-      console.log("Message sent successfully:", response.data);
+      console.log('Sending message with data:', data);
+      const response = await http.post<SendMessageResponse>('/message/send', data);
+      console.log('Message sent successfully:', response.data);
       return response.data;
     } catch (error: any) {
-      console.error("Error sending message:", error);
-      console.error("Error response:", error.response?.data);
-      throw new Error(
-        error.response?.data?.message || "Failed to send message",
-      );
+      console.error('Error sending message:', error);
+      console.error('Error response:', error.response?.data);
+      throw new Error(error.response?.data?.message || 'Failed to send message');
     }
   },
 };
