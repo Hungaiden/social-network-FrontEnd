@@ -14,6 +14,23 @@ export interface LoginResponse {
   };
 }
 
+export interface RegisterRequest {
+  username: string;
+  email: string;
+  password: string;
+  displayName: string;
+}
+
+export interface RegisterResponse {
+  code: number;
+  result: {
+    id: string;
+    username: string;
+    email: string;
+    displayName: string;
+  };
+}
+
 export interface User {
   id: string;
   username: string;
@@ -91,6 +108,43 @@ export const logout = () => {
   localStorage.removeItem('access_token');
   localStorage.removeItem('current_user');
   window.location.href = '/login';
+};
+
+// Register API
+export const register = async (data: RegisterRequest): Promise<RegisterResponse> => {
+  try {
+    const response = await http.post<RegisterResponse>('/auth/register', data);
+    return response.data;
+  } catch (error: any) {
+    // Check if response exists
+    if (!error.response) {
+      throw new Error('Không thể kết nối đến server. Vui lòng kiểm tra lại.');
+    }
+
+    const statusCode = error.response.status;
+    const errorData = error.response?.data;
+    const errorCode = errorData?.code;
+    const errorMessage = errorData?.message;
+
+    // Handle specific error codes from backend
+    if (errorCode === 4002) {
+      throw new Error('Username đã tồn tại. Vui lòng chọn username khác.');
+    }
+
+    if (errorCode === 4003) {
+      throw new Error('Email đã được đăng ký. Vui lòng sử dụng email khác.');
+    }
+
+    if (statusCode === 400) {
+      throw new Error(errorMessage || 'Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.');
+    }
+
+    if (statusCode === 500) {
+      throw new Error('Lỗi server. Vui lòng thử lại sau.');
+    }
+
+    throw new Error(errorMessage || 'Đăng ký thất bại. Vui lòng thử lại.');
+  }
 };
 
 // Check if user is authenticated

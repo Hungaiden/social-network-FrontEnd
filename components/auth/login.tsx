@@ -2,11 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Mail, Lock, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { login, decodeToken } from '@/services/authService';
+import { login, register, decodeToken } from '@/services/authService';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Login() {
@@ -46,28 +45,39 @@ export default function Login() {
           localStorage.setItem('current_user', JSON.stringify(user));
 
           toast({
-            title: 'Login successful',
-            description: 'Welcome back!',
+            title: 'Đăng nhập thành công',
+            description: 'Chào mừng trở lại!',
           });
 
           router.push('/dashboard/timeline');
         }
       } else if (!isLogin && email && password && displayName && username) {
-        // Sign up logic (you can implement this later)
-        const user = {
-          id: '1',
-          email,
-          displayName,
+        // Call register API
+        const registerResponse = await register({
           username,
-          avatar: '/user-avatar.jpg',
-        };
-        localStorage.setItem('current_user', JSON.stringify(user));
-        router.push('/dashboard/timeline');
+          email,
+          password,
+          displayName,
+        });
+
+        if (registerResponse.code === 1000) {
+          toast({
+            title: 'Đăng ký thành công',
+            description: 'Tài khoản của bạn đã được tạo. Vui lòng đăng nhập.',
+          });
+
+          // Reset form and switch to login
+          setIsLogin(true);
+          setEmail('');
+          setPassword('');
+          setDisplayName('');
+          setUsername('');
+        }
       }
     } catch (error: any) {
       toast({
-        title: 'Login failed',
-        description: error.message || 'Please check your credentials and try again.',
+        title: isLogin ? 'Đăng nhập thất bại' : 'Đăng ký thất bại',
+        description: error.message || 'Vui lòng kiểm tra thông tin và thử lại.',
         variant: 'destructive',
       });
     } finally {
@@ -76,106 +86,145 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-lg">
-        <CardHeader className="space-y-2 text-center">
-          <div className="h-12 w-12 mx-auto rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg">
-            SM
-          </div>
-          <CardTitle className="text-2xl">{isLogin ? 'Welcome Back' : 'Join Us'}</CardTitle>
-          <CardDescription>
-            {isLogin ? 'Sign in to your account' : 'Create a new account to get started'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {!isLogin && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Email</label>
-                <Input
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={isLoading}
-                />
-              </div>
-            )}
+    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <h1 className="text-white text-3xl font-bold mb-6">Fakebook</h1>
+          <h2 className="text-white text-3xl font-bold mb-2">
+            {isLogin ? 'Chào mừng trở lại' : 'Tham gia với chúng tôi'}
+          </h2>
+          <p className="text-gray-400 text-sm">
+            {isLogin ? 'Nhập thông tin để tiếp tục hành trình' : 'Tạo tài khoản để bắt đầu'}
+          </p>
+        </div>
 
-            {!isLogin && (
+        <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+          {!isLogin && (
+            <>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Display Name</label>
+                <label className="text-sm font-medium text-gray-300">Tên hiển thị</label>
                 <Input
                   placeholder="John Doe"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   disabled={isLoading}
+                  className="bg-white border-0 text-black placeholder:text-gray-500 px-4 py-3"
                 />
               </div>
-            )}
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Username</label>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300">Tên người dùng</label>
+                <Input
+                  placeholder="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  disabled={isLoading}
+                  required
+                  className="bg-white border-0 text-black placeholder:text-gray-500 px-4 py-3"
+                />
+              </div>
+            </>
+          )}
+
+          {isLogin && (
+            <div className="relative">
+              <Mail className="absolute left-4 top-3.5 h-5 w-5 text-gray-500" />
               <Input
-                placeholder="username"
+                type="text"
+                placeholder="Tên người dùng"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 disabled={isLoading}
                 required
+                className="bg-white border-0 text-black placeholder:text-gray-500 pl-12 pr-4 py-3"
               />
             </div>
+          )}
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Password</label>
+          {!isLogin && (
+            <div className="relative">
+              <Mail className="absolute left-4 top-3.5 h-5 w-5 text-gray-500" />
               <Input
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                type="email"
+                placeholder="Email của bạn"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
                 required
+                className="bg-white border-0 text-black placeholder:text-gray-500 pl-12 pr-4 py-3"
               />
             </div>
+          )}
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Connecting to server...
-                </>
-              ) : isLogin ? (
-                'Sign In'
-              ) : (
-                'Sign Up'
-              )}
-            </Button>
-
-            {isLoading && (
-              <div className="text-center pt-2">
-                <p className="text-xs text-muted-foreground">
-                  Please wait while we authenticate your credentials...
-                </p>
-              </div>
-            )}
-          </form>
-
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => {
-                setIsLogin(!isLogin);
-                setEmail('');
-                setPassword('');
-                setDisplayName('');
-                setUsername('');
-              }}
+          <div className="relative">
+            <Lock className="absolute left-4 top-3.5 h-5 w-5 text-gray-500" />
+            <Input
+              type="password"
+              placeholder="Mật khẩu"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               disabled={isLoading}
-              className="text-sm text-primary hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
-            </button>
+              required
+              className="bg-white border-0 text-black placeholder:text-gray-500 pl-12 pr-4 py-3"
+            />
           </div>
-        </CardContent>
-      </Card>
+
+          {isLogin && (
+            <div className="text-right">
+              <button
+                type="button"
+                className="text-sm text-gray-400 hover:text-gray-200 transition-colors"
+              >
+                Quên mật khẩu?
+              </button>
+            </div>
+          )}
+
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Đang kết nối...
+              </>
+            ) : (
+              <>
+                {isLogin ? 'Đăng nhập' : 'Đăng ký'}
+                <ArrowRight className="h-4 w-4" />
+              </>
+            )}
+          </Button>
+        </form>
+
+        <div className="text-center border-t border-gray-700 pt-6">
+          <button
+            onClick={() => {
+              setIsLogin(!isLogin);
+              setEmail('');
+              setPassword('');
+              setDisplayName('');
+              setUsername('');
+            }}
+            disabled={isLoading}
+            className="text-sm text-gray-400 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLogin ? (
+              <>
+                Chưa có tài khoản?{' '}
+                <span className="font-semibold text-white hover:text-gray-300">Đăng ký ngay</span>
+              </>
+            ) : (
+              <>
+                Đã có tài khoản?{' '}
+                <span className="font-semibold text-white hover:text-gray-300">Đăng nhập</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

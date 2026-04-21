@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { RefreshCw, Heart, Users } from "lucide-react";
+import { RefreshCw, Heart, Users } from 'lucide-react';
 
 const onlineFriends = [
   {
-    id: "1",
-    name: "SHIKU",
-    username: "shiku",
-    initials: "SH",
-    color: "from-teal-400 to-cyan-500",
+    id: '1',
+    name: 'FAKEBOOK',
+    username: 'fakebook',
+    initials: 'SH',
+    color: 'from-teal-400 to-cyan-500',
   },
 ];
 
-const vibeOptions = ["Hành động", "Tình cảm", "Hài", "Kinh dị"];
+const vibeOptions = ['Hành động', 'Tình cảm', 'Hài', 'Kinh dị'];
 
 export default function FeedSidebar() {
   return (
@@ -29,9 +29,7 @@ export default function FeedSidebar() {
               <Users className="w-3.5 h-3.5" />2
             </div>
           </div>
-          <p className="text-sm text-muted-foreground mb-3">
-            Thể loại phim yêu thích?
-          </p>
+          <p className="text-sm text-muted-foreground mb-3">Thể loại phim yêu thích?</p>
           <div className="grid grid-cols-2 gap-2">
             {vibeOptions.map((opt) => (
               <button
@@ -52,9 +50,7 @@ export default function FeedSidebar() {
               Bạn bè online
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">
-                {onlineFriends.length}
-              </span>
+              <span className="text-xs text-muted-foreground">{onlineFriends.length}</span>
               <button className="text-muted-foreground hover:text-foreground transition">
                 <RefreshCw className="w-3.5 h-3.5" />
               </button>
@@ -68,19 +64,13 @@ export default function FeedSidebar() {
                   <div
                     className={`w-9 h-9 rounded-full bg-gradient-to-br ${friend.color} flex items-center justify-center`}
                   >
-                    <span className="text-white text-xs font-bold">
-                      {friend.initials}
-                    </span>
+                    <span className="text-white text-xs font-bold">{friend.initials}</span>
                   </div>
                   <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-card rounded-full" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold leading-tight">
-                    {friend.name}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    @{friend.username}
-                  </p>
+                  <p className="text-sm font-semibold leading-tight">{friend.name}</p>
+                  <p className="text-xs text-muted-foreground">@{friend.username}</p>
                 </div>
               </div>
             ))}
@@ -103,7 +93,7 @@ export default function FeedSidebar() {
               Quyền riêng tư
             </a>
           </div>
-          <p>© 2025 SHIKU SOCIAL</p>
+          <p>© 2025 FAKEBOOK</p>
         </div>
       </div>
     </aside>
