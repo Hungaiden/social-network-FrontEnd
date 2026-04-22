@@ -3,7 +3,7 @@ import axios, { AxiosInstance } from 'axios';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080/api/v1';
 
 const API_BASE_URL_PROD = 'https://fakebook-app-v1.onrender.com/api/v1';
-
+// http://157.66.25.186:8080/api/v1
 // Tạo instance Axios với cấu hình mặc định
 const http: AxiosInstance = axios.create({
   baseURL: API_BASE_URL_PROD,
