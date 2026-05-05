@@ -5,6 +5,7 @@ export interface Friend {
   userId: string;
   displayName: string;
   avatar: string | null;
+  username?: string;
 }
 
 export interface FriendsResponse {
@@ -105,6 +106,21 @@ export const friendService = {
     } catch (error: any) {
       console.error('Error responding to friend request:', error);
       throw new Error(error.response?.data?.message || 'Failed to respond to friend request');
+    }
+  },
+
+  /**
+   * Get a specific user's profile by userId
+   * @param userId The ID of the user to fetch
+   * @returns User profile information
+   */
+  getUserProfile: async (userId: string): Promise<any> => {
+    try {
+      const response = await http.get<any>(`/users/${userId}`);
+      return response.data;
+    } catch (error: any) {
+      console.error('Error fetching user profile:', error);
+      throw new Error(error.response?.data?.message || 'Failed to fetch user profile');
     }
   },
 };

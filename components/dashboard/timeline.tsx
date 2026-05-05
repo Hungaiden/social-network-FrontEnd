@@ -1,8 +1,9 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback } from "react";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 import {
   ChevronDown,
   ChevronUp,
@@ -18,10 +19,10 @@ import {
   MoreHorizontal,
   Loader2,
   RefreshCw,
-} from "lucide-react";
-import postService from "@/services/postService";
-import { useToast } from "@/hooks/use-toast";
-import FeedSidebar from "@/components/dashboard/feed-sidebar";
+} from 'lucide-react';
+import postService from '@/services/postService';
+import { useToast } from '@/hooks/use-toast';
+import FeedSidebar from '@/components/dashboard/feed-sidebar';
 
 interface Comment {
   id: string;
@@ -37,6 +38,7 @@ interface Post {
   author: string;
   username: string;
   avatar: string;
+  ownerId?: string;
   title: string;
   content: string;
   timestamp: string;
@@ -52,11 +54,11 @@ function formatDate(dateStr: string): string {
   const date = new Date(dateStr);
   const now = new Date();
   const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
-  if (diff < 60) return "Vừa xong";
+  if (diff < 60) return 'Vừa xong';
   if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`;
   if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`;
   if (diff < 2592000) return `${Math.floor(diff / 86400)} ngày trước`;
-  return date.toLocaleDateString("vi-VN");
+  return date.toLocaleDateString('vi-VN');
 }
 
 const PAGE_SIZE = 10;
@@ -71,21 +73,18 @@ export default function Timeline({ currentUser }) {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
-  const [postContent, setPostContent] = useState("");
-  const [postTitle, setPostTitle] = useState("");
+  const [postContent, setPostContent] = useState('');
+  const [postTitle, setPostTitle] = useState('');
   const [isCreatingPost, setIsCreatingPost] = useState(false);
-  const [commentInputs, setCommentInputs] = useState<Record<string, string>>(
-    {},
-  );
-  const [expandedPosts, setExpandedPosts] = useState<Record<string, boolean>>(
-    {},
-  );
+  const [commentInputs, setCommentInputs] = useState<Record<string, string>>({});
+  const [expandedPosts, setExpandedPosts] = useState<Record<string, boolean>>({});
 
   const mapApiPost = (apiPost: any): Post => ({
     id: apiPost.id,
-    author: apiPost.ownerDisplayName ?? apiPost.ownerUsername ?? "Người dùng",
-    username: apiPost.ownerUsername ?? "",
-    avatar: apiPost.ownerAvatar ?? "",
+    author: apiPost.ownerDisplayName ?? apiPost.ownerUsername ?? 'Người dùng',
+    username: apiPost.ownerUsername ?? '',
+    avatar: apiPost.ownerAvatar ?? '',
+    ownerId: apiPost.ownerId ?? '',
     title: apiPost.title,
     content: apiPost.content,
     timestamp: formatDate(apiPost.createdAt),
@@ -109,7 +108,7 @@ export default function Timeline({ currentUser }) {
         setPage(res.result.page);
       }
     } catch (err: any) {
-      setFetchError(err.message ?? "Không thể tải bài viết");
+      setFetchError(err.message ?? 'Không thể tải bài viết');
     } finally {
       setIsLoading(false);
       setIsLoadingMore(false);
@@ -129,9 +128,9 @@ export default function Timeline({ currentUser }) {
   const handleCreatePost = async () => {
     if (!postTitle.trim() || !postContent.trim()) {
       toast({
-        title: "Lỗi",
-        description: "Vui lòng nhập tiêu đề và nội dung",
-        variant: "destructive",
+        title: 'Lỗi',
+        description: 'Vui lòng nhập tiêu đề và nội dung',
+        variant: 'destructive',
       });
       return;
     }
@@ -144,12 +143,12 @@ export default function Timeline({ currentUser }) {
       if (response.code === 1000 && response.result) {
         const newPost: Post = {
           id: response.result.id,
-          author: currentUser?.displayName ?? "Bạn",
-          username: currentUser?.username ?? "",
-          avatar: currentUser?.avatar ?? "",
+          author: currentUser?.displayName ?? 'Bạn',
+          username: currentUser?.username ?? '',
+          avatar: currentUser?.avatar ?? '',
           title: postTitle,
           content: response.result.content,
-          timestamp: "Vừa xong",
+          timestamp: 'Vừa xong',
           upvotes: 0,
           hot: 0,
           comments: [],
@@ -158,15 +157,15 @@ export default function Timeline({ currentUser }) {
         };
         setPosts((prev) => [newPost, ...prev]);
         setTotalElements((n) => n + 1);
-        setPostTitle("");
-        setPostContent("");
-        toast({ title: "Đã đăng bài!" });
+        setPostTitle('');
+        setPostContent('');
+        toast({ title: 'Đã đăng bài!' });
       }
     } catch {
       toast({
-        title: "Lỗi",
-        description: "Không thể đăng bài. Thử lại sau.",
-        variant: "destructive",
+        title: 'Lỗi',
+        description: 'Không thể đăng bài. Thử lại sau.',
+        variant: 'destructive',
       });
     } finally {
       setIsCreatingPost(false);
@@ -188,11 +187,7 @@ export default function Timeline({ currentUser }) {
   };
 
   const toggleComments = (postId: string) => {
-    setPosts(
-      posts.map((p) =>
-        p.id === postId ? { ...p, showComments: !p.showComments } : p,
-      ),
-    );
+    setPosts(posts.map((p) => (p.id === postId ? { ...p, showComments: !p.showComments } : p)));
   };
 
   const handleAddComment = (postId: string) => {
@@ -200,29 +195,26 @@ export default function Timeline({ currentUser }) {
     if (!content) return;
     const newComment: Comment = {
       id: Date.now().toString(),
-      author: currentUser?.displayName ?? "Bạn",
-      username: currentUser?.username ?? "",
-      avatar: currentUser?.avatar ?? "",
+      author: currentUser?.displayName ?? 'Bạn',
+      username: currentUser?.username ?? '',
+      avatar: currentUser?.avatar ?? '',
       content,
-      timestamp: "Vừa xong",
+      timestamp: 'Vừa xong',
     };
     setPosts(
-      posts.map((p) =>
-        p.id === postId ? { ...p, comments: [...p.comments, newComment] } : p,
-      ),
+      posts.map((p) => (p.id === postId ? { ...p, comments: [...p.comments, newComment] } : p)),
     );
-    setCommentInputs({ ...commentInputs, [postId]: "" });
+    setCommentInputs({ ...commentInputs, [postId]: '' });
   };
 
-  const getInitials = (name: string) => name?.slice(0, 2).toUpperCase() ?? "??";
+  const getInitials = (name: string) => name?.slice(0, 2).toUpperCase() ?? '??';
   const avatarColors = [
-    "from-blue-400 to-cyan-500",
-    "from-rose-400 to-pink-500",
-    "from-violet-400 to-purple-500",
-    "from-amber-400 to-orange-500",
+    'from-blue-400 to-cyan-500',
+    'from-rose-400 to-pink-500',
+    'from-violet-400 to-purple-500',
+    'from-amber-400 to-orange-500',
   ];
-  const getColor = (key: string) =>
-    avatarColors[(key?.charCodeAt(0) ?? 0) % avatarColors.length];
+  const getColor = (key: string) => avatarColors[(key?.charCodeAt(0) ?? 0) % avatarColors.length];
 
   return (
     <div className="flex h-full overflow-hidden">
@@ -233,10 +225,10 @@ export default function Timeline({ currentUser }) {
           <div className="bg-card border border-border rounded-2xl p-4">
             <div className="flex gap-3">
               <div
-                className={`w-10 h-10 rounded-full bg-gradient-to-br ${getColor(currentUser?.username ?? "")} flex items-center justify-center shrink-0`}
+                className={`w-10 h-10 rounded-full bg-gradient-to-br ${getColor(currentUser?.username ?? '')} flex items-center justify-center shrink-0`}
               >
                 <span className="text-white text-sm font-semibold">
-                  {getInitials(currentUser?.displayName ?? "")}
+                  {getInitials(currentUser?.displayName ?? '')}
                 </span>
               </div>
               <div className="flex-1 space-y-2">
@@ -269,8 +261,8 @@ export default function Timeline({ currentUser }) {
                         size="sm"
                         className="rounded-xl text-xs"
                         onClick={() => {
-                          setPostTitle("");
-                          setPostContent("");
+                          setPostTitle('');
+                          setPostContent('');
                         }}
                       >
                         Huỷ
@@ -279,11 +271,7 @@ export default function Timeline({ currentUser }) {
                     <Button
                       size="sm"
                       className="rounded-xl text-xs px-4"
-                      disabled={
-                        !postTitle.trim() ||
-                        !postContent.trim() ||
-                        isCreatingPost
-                      }
+                      disabled={!postTitle.trim() || !postContent.trim() || isCreatingPost}
                       onClick={handleCreatePost}
                     >
                       {isCreatingPost ? (
@@ -292,7 +280,7 @@ export default function Timeline({ currentUser }) {
                           Đang đăng...
                         </>
                       ) : (
-                        "Đăng bài"
+                        'Đăng bài'
                       )}
                     </Button>
                   </div>
@@ -315,9 +303,7 @@ export default function Timeline({ currentUser }) {
               onClick={() => fetchPosts(0)}
               className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition"
             >
-              <RefreshCw
-                className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`}
-              />
+              <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
               Làm mới
             </button>
           </div>
@@ -326,10 +312,7 @@ export default function Timeline({ currentUser }) {
           {isLoading && (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="bg-card border border-border rounded-2xl p-4 animate-pulse"
-                >
+                <div key={i} className="bg-card border border-border rounded-2xl p-4 animate-pulse">
                   <div className="flex gap-3 mb-3">
                     <div className="w-10 h-10 rounded-full bg-muted" />
                     <div className="space-y-2 flex-1">
@@ -364,9 +347,7 @@ export default function Timeline({ currentUser }) {
               const isExpanded = expandedPosts[post.id];
               const isLong = post.content.length > 200;
               const displayContent =
-                isLong && !isExpanded
-                  ? post.content.slice(0, 200) + "..."
-                  : post.content;
+                isLong && !isExpanded ? post.content.slice(0, 200) + '...' : post.content;
 
               return (
                 <div
@@ -376,7 +357,10 @@ export default function Timeline({ currentUser }) {
                   <div className="p-4">
                     {/* Author row */}
                     <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
+                      <Link
+                        href={post.ownerId ? `/profile/${post.ownerId}` : '#'}
+                        className="flex items-center gap-3 hover:opacity-80 transition flex-1"
+                      >
                         <div
                           className={`w-10 h-10 rounded-full bg-gradient-to-br ${getColor(post.username || post.id)} flex items-center justify-center shrink-0`}
                         >
@@ -385,9 +369,7 @@ export default function Timeline({ currentUser }) {
                           </span>
                         </div>
                         <div>
-                          <p className="font-semibold text-sm leading-tight">
-                            {post.author}
-                          </p>
+                          <p className="font-semibold text-sm leading-tight">{post.author}</p>
                           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                             <span>{post.timestamp}</span>
                             {post.pinned && (
@@ -399,7 +381,7 @@ export default function Timeline({ currentUser }) {
                             )}
                           </div>
                         </div>
-                      </div>
+                      </Link>
                       <button className="text-muted-foreground hover:text-foreground transition p-1 rounded-lg hover:bg-muted">
                         <MoreHorizontal className="w-4 h-4" />
                       </button>
@@ -407,9 +389,7 @@ export default function Timeline({ currentUser }) {
 
                     {/* Content */}
                     <h3 className="font-bold text-base mb-1">{post.title}</h3>
-                    <p className="text-sm text-foreground/80 leading-relaxed">
-                      {displayContent}
-                    </p>
+                    <p className="text-sm text-foreground/80 leading-relaxed">{displayContent}</p>
                     {isLong && (
                       <button
                         onClick={() =>
@@ -438,8 +418,8 @@ export default function Timeline({ currentUser }) {
                         onClick={() => toggleUpvote(post.id)}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition ${
                           post.upvoted
-                            ? "bg-primary/10 text-primary"
-                            : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                            ? 'bg-primary/10 text-primary'
+                            : 'hover:bg-muted text-muted-foreground hover:text-foreground'
                         }`}
                       >
                         <ChevronUp className="w-4 h-4" />
@@ -447,9 +427,7 @@ export default function Timeline({ currentUser }) {
                       </button>
                       <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition">
                         <Flame className="w-4 h-4 text-orange-500" />
-                        {post.hot > 0 && (
-                          <span className="text-orange-500">{post.hot}</span>
-                        )}
+                        {post.hot > 0 && <span className="text-orange-500">{post.hot}</span>}
                       </button>
                       <button
                         onClick={() => toggleComments(post.id)}
@@ -480,12 +458,8 @@ export default function Timeline({ currentUser }) {
                             </span>
                           </div>
                           <div className="flex-1 bg-card rounded-xl px-3 py-2 border border-border">
-                            <p className="font-semibold text-xs mb-0.5">
-                              {comment.author}
-                            </p>
-                            <p className="text-foreground/80">
-                              {comment.content}
-                            </p>
+                            <p className="font-semibold text-xs mb-0.5">{comment.author}</p>
+                            <p className="text-foreground/80">{comment.content}</p>
                             <p className="text-muted-foreground text-[10px] mt-1">
                               {comment.timestamp}
                             </p>
@@ -498,9 +472,7 @@ export default function Timeline({ currentUser }) {
                                     p.id === post.id
                                       ? {
                                           ...p,
-                                          comments: p.comments.filter(
-                                            (c) => c.id !== comment.id,
-                                          ),
+                                          comments: p.comments.filter((c) => c.id !== comment.id),
                                         }
                                       : p,
                                   ),
@@ -517,25 +489,23 @@ export default function Timeline({ currentUser }) {
                       {/* Comment input */}
                       <div className="flex gap-2.5">
                         <div
-                          className={`w-7 h-7 rounded-full bg-gradient-to-br ${getColor(currentUser?.username ?? "")} flex items-center justify-center shrink-0`}
+                          className={`w-7 h-7 rounded-full bg-gradient-to-br ${getColor(currentUser?.username ?? '')} flex items-center justify-center shrink-0`}
                         >
                           <span className="text-white text-xs font-semibold">
-                            {getInitials(currentUser?.displayName ?? "")}
+                            {getInitials(currentUser?.displayName ?? '')}
                           </span>
                         </div>
                         <div className="flex-1 flex items-center gap-2 bg-card border border-border rounded-xl px-3 py-2">
                           <input
                             placeholder="Tham gia thảo luận..."
-                            value={commentInputs[post.id] ?? ""}
+                            value={commentInputs[post.id] ?? ''}
                             onChange={(e) =>
                               setCommentInputs({
                                 ...commentInputs,
                                 [post.id]: e.target.value,
                               })
                             }
-                            onKeyDown={(e) =>
-                              e.key === "Enter" && handleAddComment(post.id)
-                            }
+                            onKeyDown={(e) => e.key === 'Enter' && handleAddComment(post.id)}
                             className="flex-1 text-sm bg-transparent outline-none placeholder:text-muted-foreground"
                           />
                           <button className="text-muted-foreground hover:text-foreground transition p-0.5">
@@ -583,9 +553,7 @@ export default function Timeline({ currentUser }) {
           {/* No posts */}
           {!isLoading && !fetchError && posts.length === 0 && (
             <div className="text-center py-16 text-muted-foreground">
-              <p className="text-sm">
-                Chưa có bài viết nào. Hãy là người đầu tiên đăng bài!
-              </p>
+              <p className="text-sm">Chưa có bài viết nào. Hãy là người đầu tiên đăng bài!</p>
             </div>
           )}
         </div>

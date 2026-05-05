@@ -19,7 +19,7 @@ const navItems = [
     href: '/dashboard/messages',
   },
   { id: 'friends', label: 'Bạn bè', icon: Users, href: '/dashboard/friends' },
-  { id: 'profile', label: 'Hồ sơ', icon: User, href: '/dashboard/profile' },
+  { id: 'profile', label: 'Hồ sơ', icon: User, href: '/profile' },
 ];
 
 export default function Sidebar() {

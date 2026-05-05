@@ -1,21 +1,20 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { UserPlus, Check, X } from "lucide-react";
-import friendService, {
-  type FriendRequest as ApiFriendRequest,
-} from "@/services/friendService";
-import { useToast } from "@/hooks/use-toast";
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { UserPlus, Check, X } from 'lucide-react';
+import Link from 'next/link';
+import friendService, { type FriendRequest as ApiFriendRequest } from '@/services/friendService';
+import { useToast } from '@/hooks/use-toast';
 
 interface Friend {
   userId: string;
   displayName: string;
   avatar: string | null;
-  status?: "online" | "offline";
+  status?: 'online' | 'offline';
 }
 
 export default function Friends({ currentUser, onMessageFriend }) {
@@ -46,12 +45,12 @@ export default function Friends({ currentUser, onMessageFriend }) {
           setTotalElements(response.result.totalElements);
         }
       } catch (err) {
-        console.error("Failed to fetch friends:", err);
-        setError("Failed to load friends. Please try again.");
+        console.error('Failed to fetch friends:', err);
+        setError('Failed to load friends. Please try again.');
         toast({
-          title: "Error",
-          description: "Failed to load friends",
-          variant: "destructive",
+          title: 'Error',
+          description: 'Failed to load friends',
+          variant: 'destructive',
         });
       } finally {
         setIsLoading(false);
@@ -72,11 +71,11 @@ export default function Friends({ currentUser, onMessageFriend }) {
           setFriendRequests(response.result);
         }
       } catch (err) {
-        console.error("Failed to fetch friend requests:", err);
+        console.error('Failed to fetch friend requests:', err);
         toast({
-          title: "Error",
-          description: "Failed to load friend requests",
-          variant: "destructive",
+          title: 'Error',
+          description: 'Failed to load friend requests',
+          variant: 'destructive',
         });
       } finally {
         setIsLoadingRequests(false);
@@ -88,82 +87,75 @@ export default function Friends({ currentUser, onMessageFriend }) {
 
   const [suggestedUsers] = useState<Friend[]>([
     {
-      id: "7",
-      name: "Jessica Lee",
-      username: "jessicaL",
-      avatar: "/placeholder.svg?key=jess01",
-      status: "online",
+      id: '7',
+      name: 'Jessica Lee',
+      username: 'jessicaL',
+      avatar: '/placeholder.svg?key=jess01',
+      status: 'online',
     },
     {
-      id: "8",
-      name: "Chris Martin",
-      username: "chrism",
-      avatar: "/placeholder.svg?key=chris01",
-      status: "offline",
+      id: '8',
+      name: 'Chris Martin',
+      username: 'chrism',
+      avatar: '/placeholder.svg?key=chris01',
+      status: 'offline',
     },
     {
-      id: "9",
-      name: "Laura Garcia",
-      username: "laurag",
-      avatar: "/placeholder.svg?key=laura01",
-      status: "online",
+      id: '9',
+      name: 'Laura Garcia',
+      username: 'laurag',
+      avatar: '/placeholder.svg?key=laura01',
+      status: 'online',
     },
   ]);
 
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleAcceptRequest = async (requestId: string, receiverId: string) => {
     try {
       const response = await friendService.respondFriendRequest({
         requestId,
         receiverId,
-        action: "ACCEPT",
+        action: 'ACCEPT',
       });
 
       if (response.code === 1000) {
-        setFriendRequests(
-          friendRequests.filter((r) => r.requestId !== requestId),
-        );
+        setFriendRequests(friendRequests.filter((r) => r.requestId !== requestId));
         toast({
-          title: "Friend request accepted",
-          description: "You are now friends!",
+          title: 'Friend request accepted',
+          description: 'You are now friends!',
         });
       }
     } catch (err) {
-      console.error("Failed to accept friend request:", err);
+      console.error('Failed to accept friend request:', err);
       toast({
-        title: "Error",
-        description: "Failed to accept friend request",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to accept friend request',
+        variant: 'destructive',
       });
     }
   };
 
-  const handleDeclineRequest = async (
-    requestId: string,
-    receiverId: string,
-  ) => {
+  const handleDeclineRequest = async (requestId: string, receiverId: string) => {
     try {
       const response = await friendService.respondFriendRequest({
         requestId,
         receiverId,
-        action: "REJECT",
+        action: 'REJECT',
       });
 
       if (response.code === 1000) {
-        setFriendRequests(
-          friendRequests.filter((r) => r.requestId !== requestId),
-        );
+        setFriendRequests(friendRequests.filter((r) => r.requestId !== requestId));
         toast({
-          title: "Friend request declined",
+          title: 'Friend request declined',
         });
       }
     } catch (err) {
-      console.error("Failed to decline friend request:", err);
+      console.error('Failed to decline friend request:', err);
       toast({
-        title: "Error",
-        description: "Failed to decline friend request",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to decline friend request',
+        variant: 'destructive',
       });
     }
   };
@@ -188,17 +180,13 @@ export default function Friends({ currentUser, onMessageFriend }) {
       <div className="max-w-4xl mx-auto p-6">
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2">Friends</h1>
-          <p className="text-muted-foreground">
-            Manage your connections and friend requests
-          </p>
+          <p className="text-muted-foreground">Manage your connections and friend requests</p>
         </div>
 
         <Tabs defaultValue="friends" className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="friends">Friends ({totalElements})</TabsTrigger>
-            <TabsTrigger value="requests">
-              Requests ({friendRequests.length})
-            </TabsTrigger>
+            <TabsTrigger value="requests">Requests ({friendRequests.length})</TabsTrigger>
             <TabsTrigger value="suggestions">Suggestions</TabsTrigger>
           </TabsList>
 
@@ -228,39 +216,34 @@ export default function Friends({ currentUser, onMessageFriend }) {
               <Card>
                 <CardContent className="pt-6 text-center">
                   <p className="text-muted-foreground">
-                    {searchQuery
-                      ? "No friends found"
-                      : "You have no friends yet"}
+                    {searchQuery ? 'No friends found' : 'You have no friends yet'}
                   </p>
                 </CardContent>
               </Card>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredFriends.map((friend) => (
-                  <Card
-                    key={friend.userId}
-                    className="hover:shadow-md transition"
-                  >
+                  <Card key={friend.userId} className="hover:shadow-md transition">
                     <CardContent className="pt-6">
-                      <div className="text-center mb-4">
-                        <div className="relative inline-block mb-3">
-                          <img
-                            src={friend.avatar || "/placeholder.svg"}
-                            alt={friend.displayName}
-                            className="w-16 h-16 rounded-full"
-                          />
-                          {friend.status && (
-                            <div
-                              className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-background ${
-                                friend.status === "online"
-                                  ? "bg-green-500"
-                                  : "bg-gray-400"
-                              }`}
+                      <Link href={`/profile/${friend.userId}`} className="block">
+                        <div className="text-center mb-4 cursor-pointer hover:opacity-80 transition">
+                          <div className="relative inline-block mb-3">
+                            <img
+                              src={friend.avatar || '/placeholder.svg'}
+                              alt={friend.displayName}
+                              className="w-16 h-16 rounded-full object-cover"
                             />
-                          )}
+                            {friend.status && (
+                              <div
+                                className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-background ${
+                                  friend.status === 'online' ? 'bg-green-500' : 'bg-gray-400'
+                                }`}
+                              />
+                            )}
+                          </div>
+                          <p className="font-semibold">{friend.displayName}</p>
                         </div>
-                        <p className="font-semibold">{friend.displayName}</p>
-                      </div>
+                      </Link>
                       <div className="flex gap-2">
                         <Button
                           variant="outline"
@@ -296,9 +279,7 @@ export default function Friends({ currentUser, onMessageFriend }) {
             ) : friendRequests.length === 0 ? (
               <Card>
                 <CardContent className="pt-6 text-center">
-                  <p className="text-muted-foreground">
-                    No pending friend requests
-                  </p>
+                  <p className="text-muted-foreground">No pending friend requests</p>
                 </CardContent>
               </Card>
             ) : (
@@ -312,9 +293,7 @@ export default function Friends({ currentUser, onMessageFriend }) {
                       <div className="flex-1">
                         <div className="flex items-start justify-between">
                           <div>
-                            <p className="font-semibold">
-                              {request.senderDisplayName}
-                            </p>
+                            <p className="font-semibold">{request.senderDisplayName}</p>
                             <p className="text-sm text-muted-foreground">
                               Status: {request.status}
                             </p>
@@ -324,20 +303,15 @@ export default function Friends({ currentUser, onMessageFriend }) {
                           </p>
                         </div>
                         {request.message && (
-                          <p className="text-sm mt-2 text-foreground/80">
-                            "{request.message}"
-                          </p>
+                          <p className="text-sm mt-2 text-foreground/80">"{request.message}"</p>
                         )}
                         <div className="flex gap-2 mt-3">
                           <Button
                             size="sm"
                             onClick={() =>
-                              handleAcceptRequest(
-                                request.requestId,
-                                request.receiverId,
-                              )
+                              handleAcceptRequest(request.requestId, request.receiverId)
                             }
-                            disabled={request.status !== "PENDING"}
+                            disabled={request.status !== 'PENDING'}
                           >
                             <Check className="w-4 h-4 mr-1" />
                             Accept
@@ -346,12 +320,9 @@ export default function Friends({ currentUser, onMessageFriend }) {
                             variant="outline"
                             size="sm"
                             onClick={() =>
-                              handleDeclineRequest(
-                                request.requestId,
-                                request.receiverId,
-                              )
+                              handleDeclineRequest(request.requestId, request.receiverId)
                             }
-                            disabled={request.status !== "PENDING"}
+                            disabled={request.status !== 'PENDING'}
                           >
                             <X className="w-4 h-4 mr-1" />
                             Decline
@@ -374,27 +345,20 @@ export default function Friends({ currentUser, onMessageFriend }) {
                     <div className="text-center mb-4">
                       <div className="relative inline-block mb-3">
                         <img
-                          src={user.avatar || "/placeholder.svg"}
+                          src={user.avatar || '/placeholder.svg'}
                           alt={user.name}
                           className="w-16 h-16 rounded-full"
                         />
                         <div
                           className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-background ${
-                            user.status === "online"
-                              ? "bg-green-500"
-                              : "bg-gray-400"
+                            user.status === 'online' ? 'bg-green-500' : 'bg-gray-400'
                           }`}
                         />
                       </div>
                       <p className="font-semibold">{user.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        @{user.username}
-                      </p>
+                      <p className="text-sm text-muted-foreground">@{user.username}</p>
                     </div>
-                    <Button
-                      className="w-full"
-                      onClick={() => handleAddFriend(user.id)}
-                    >
+                    <Button className="w-full" onClick={() => handleAddFriend(user.id)}>
                       <UserPlus className="w-4 h-4 mr-1" />
                       Add Friend
                     </Button>
